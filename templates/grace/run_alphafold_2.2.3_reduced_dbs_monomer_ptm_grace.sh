@@ -1,17 +1,19 @@
 #!/bin/bash
-#SBATCH --job-name=alphafold        # job name
+#SBATCH --job-name=alphafold-2.2.3  # job name
 #SBATCH --time=1-00:00:00           # max job run time dd-hh:mm:ss
 #SBATCH --ntasks-per-node=1         # tasks (commands) per compute node
 #SBATCH --cpus-per-task=24          # CPUs (threads) per command
 #SBATCH --mem=180G                  # total memory per node
 #SBATCH --gres=gpu:a100:1           # request one GPU
-#SBATCH --output=stdout.%j          # save stdout to file
-#SBATCH --error=stderr.%j           # save stderr to file
+#SBATCH --output=stdout.%x.%j       # save stdout to file
+#SBATCH --error=stderr.%x.%j        # save stderr to file
 
 <<README
     - AlphaFold manual: https://github.com/deepmind/alphafold
-
 README
+
+module purge
+module load GCC/10.2.0  CUDA/11.1.1  OpenMPI/4.0.5  AlphaPickle/1.4.1
 
 ######### SYNOPSIS #########
 # this script will run the alphafold singularity container
@@ -21,27 +23,28 @@ README
 # TODO Edit these variables as needed:
 
 ########## INPUTS ##########
-protein_fasta='/scratch/data/bio/alphafold/example_data/IL2Y.fasta'
+protein_fasta='/scratch/data/bio/alphafold/example_data/1L2Y.fasta'
 
 ######## PARAMETERS ########
 max_template_date='2023-1-1'
-model_preset='monomer'              # monomer, monomer_casp14, monomer_ptm, multimer
-db_preset='full_dbs'                # full_dbs, reduced_dbs
+model_preset='monomer_ptm'          # monomer, monomer_casp14, monomer_ptm, multimer
+db_preset='reduced_dbs'             # full_dbs, reduced_dbs
 
 ########## OUTPUTS #########
-output_dir='out_alphafold_2.3.1'
+protein_basename=$(basename ${protein_fasta%.*})
+output_dir="out_${protein_basename}_${model_preset}"
+pickle_out_dir=$protein_basename
 
 ################################### COMMANDS ###################################
-DOWNLOAD_DIR='/scratch/data/bio/alphafold/2.3.0'  # 3.4TB data already downloaded here
+DOWNLOAD_DIR='/scratch/data/bio/alphafold/2.2.2'  # 3.4TB data already downloaded here
 
 jobstats &
 
-singularity exec --nv /sw/hprc/sw/containers/alphafold/alphafold_2.3.1.sif python /app/alphafold/run_alphafold.py  \
+singularity exec --nv /sw/hprc/sw/containers/alphafold/alphafold_2.2.3_tacc.sif python /app/alphafold/run_alphafold.py  \
   --data_dir=$DOWNLOAD_DIR  --use_gpu_relax \
   --uniref90_database_path=$DOWNLOAD_DIR/uniref90/uniref90.fasta  \
-  --mgnify_database_path=$DOWNLOAD_DIR/mgnify/mgy_clusters_2022_05.fa  \
-  --bfd_database_path=$DOWNLOAD_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt  \
-  --uniref30_database_path=$DOWNLOAD_DIR/uniclust30/UniRef30_2022_02 \
+  --mgnify_database_path=$DOWNLOAD_DIR/mgnify/mgy_clusters_2018_12.fa  \
+  --small_bfd_database_path=$DOWNLOAD_DIR/small_bfd/bfd-first_non_consensus_sequences.fasta \
   --pdb70_database_path=$DOWNLOAD_DIR/pdb70/pdb70  \
   --template_mmcif_dir=$DOWNLOAD_DIR/pdb_mmcif/mmcif_files  \
   --obsolete_pdbs_path=$DOWNLOAD_DIR/pdb_mmcif/obsolete.dat \
@@ -50,6 +53,9 @@ singularity exec --nv /sw/hprc/sw/containers/alphafold/alphafold_2.3.1.sif pytho
   --db_preset=$db_preset \
   --output_dir=$output_dir \
   --fasta_paths=$protein_fasta
+
+# graph pLDDT and PAE .pkl files
+run_AlphaPickle.py -od $output_dir/$pickle_out_dir
 
 jobstats
 
