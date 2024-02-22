@@ -10,6 +10,7 @@
 
 module purge
 module load GCC/11.3.0  OpenMPI/4.1.4 AlphaFold/2.3.1-CUDA-11.7.0
+module load AlphaPickle/1.4.1
 
 <<README
     - AlphaFold manual: https://github.com/deepmind/alphafold
@@ -35,6 +36,7 @@ db_preset='reduced_dbs'             # full_dbs, reduced_dbs
 ALPHAFOLD_DATA_DIR='/scratch/data/bio/alphafold/2.3.2'  # 3TB data already downloaded here
 protein_basename=$(basename ${protein_fasta%.*})
 output_dir="out_${protein_basename}_${model_preset}_${db_preset}"
+pickle_out_dir=${output_dir}/${protein_basename}
 
 ################################### COMMANDS ###################################
 # run gpustats in the background (&) to monitor gpu usage in order to create a graph when alphafold is complete
@@ -53,6 +55,9 @@ run_alphafold.py  \
   --db_preset=$db_preset \
   --output_dir=$output_dir \
   --fasta_paths=$protein_fasta
+
+# graph pLDDT and PAE .pkl files
+run_AlphaPickle.py -od $pickle_out_dir
 
 # run jobstats to create a graph of gpu usage for this job
 jobstats
