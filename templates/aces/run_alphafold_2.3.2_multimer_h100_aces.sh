@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=af-2.3.2         # job name
+#SBATCH --job-name=af-multimer      # job name
 #SBATCH --time=2-00:00:00           # max job run time dd-hh:mm:ss
 #SBATCH --ntasks-per-node=1         # tasks (commands) per compute node
 #SBATCH --cpus-per-task=24          # CPUs (threads) per command
@@ -26,30 +26,32 @@ module load AlphaPickle/1.4.1
 # TODO Edit these variables as needed:
 
 ########## INPUTS ##########
-protein_fasta='/scratch/data/bio/alphafold/example_data/1L2Y.fasta'
+protein_fasta='/scratch/data/bio/alphafold/example_data/T1083_T1084_multimer.fasta'
 
 ######## PARAMETERS ########
 ALPHAFOLD_DATA_DIR='/scratch/data/bio/alphafold/2.3.2'  # 3TB data already downloaded here
 max_template_date='2024-1-1'
-model_preset='monomer_ptm'          # monomer, monomer_casp14, monomer_ptm, multimer
-db_preset='reduced_dbs'             # full_dbs, reduced_dbs
+model_preset='multimer'             # monomer, monomer_casp14, monomer_ptm, multimer
+db_preset='full_dbs'                # full_dbs, reduced_dbs
 
 ########## OUTPUTS #########
 protein_basename=$(basename ${protein_fasta%.*})
-af_output_dir="out_${protein_basename}_${model_preset}_${db_preset}"
+af_output_dir="out_alphafold_${protein_basename}_${model_preset}_${db_preset}"
 pickle_output_dir=${af_output_dir}/${protein_basename}
 
 ################################### COMMANDS ###################################
 
 jobstats &
 
-run_alphafold.py  \
-  --data_dir=$ALPHAFOLD_DATA_DIR  --use_gpu_relax \
-  --uniref90_database_path=$ALPHAFOLD_DATA_DIR/uniref90/uniref90.fasta  \
-  --mgnify_database_path=$ALPHAFOLD_DATA_DIR/mgnify/mgy_clusters_2022_05.fa  \
-  --small_bfd_database_path=$ALPHAFOLD_DATA_DIR/small_bfd/bfd-first_non_consensus_sequences.fasta \
-  --pdb70_database_path=$ALPHAFOLD_DATA_DIR/pdb70/pdb70  \
-  --template_mmcif_dir=$ALPHAFOLD_DATA_DIR/pdb_mmcif/mmcif_files  \
+run_alphafold.py \
+  --data_dir=$ALPHAFOLD_DATA_DIR --use_gpu_relax \
+  --uniref90_database_path=$ALPHAFOLD_DATA_DIR/uniref90/uniref90.fasta \
+  --mgnify_database_path=$ALPHAFOLD_DATA_DIR/mgnify/mgy_clusters_2022_05.fa \
+  --bfd_database_path=$ALPHAFOLD_DATA_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
+  --uniref30_database_path=$ALPHAFOLD_DATA_DIR/uniref30/UniRef30_2023_02 \
+  --pdb_seqres_database_path=$ALPHAFOLD_DATA_DIR/pdb_seqres/pdb_seqres.txt \
+  --template_mmcif_dir=$ALPHAFOLD_DATA_DIR/pdb_mmcif/mmcif_files \
+  --uniprot_database_path=$ALPHAFOLD_DATA_DIR/uniprot/uniprot.fasta \
   --obsolete_pdbs_path=$ALPHAFOLD_DATA_DIR/pdb_mmcif/obsolete.dat \
   --model_preset=$model_preset \
   --max_template_date=$max_template_date \

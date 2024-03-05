@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=alphafold        # job name
-#SBATCH --time=1-00:00:00           # max job run time dd-hh:mm:ss
+#SBATCH --time=2-00:00:00           # max job run time dd-hh:mm:ss
 #SBATCH --ntasks-per-node=1         # tasks (commands) per compute node
 #SBATCH --cpus-per-task=16          # CPUs (threads) per command
 #SBATCH --mem=96G                   # total memory per node
@@ -15,7 +15,7 @@ README
 
 ######### SYNOPSIS #########
 # this script will run the alphafold singularity container
-# currently alphafold supports running on only one GPU
+# currently AlphaFold supports running on only one GPU
 
 ################################### VARIABLES ##################################
 # TODO Edit these variables as needed:
@@ -24,6 +24,7 @@ README
 protein_fasta='/scratch/data/bio/alphafold/example_data/IL2Y.fasta'
 
 ######## PARAMETERS ########
+DOWNLOAD_DIR='/scratch/data/bio/alphafold/2.3.0'  # 3.4TB data already downloaded here
 max_template_date='2023-1-1'
 model_preset='monomer'              # monomer, monomer_casp14, monomer_ptm, multimer
 db_preset='full_dbs'                # full_dbs, reduced_dbs
@@ -32,7 +33,6 @@ db_preset='full_dbs'                # full_dbs, reduced_dbs
 output_dir='out_alphafold_2.3.1'
 
 ################################### COMMANDS ###################################
-DOWNLOAD_DIR='/scratch/data/bio/alphafold/2.3.0'  # 3.4TB data already downloaded here
 
 jobstats &
 
