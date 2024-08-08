@@ -7,7 +7,7 @@ Most scripts have basic commands in order to help users become familiar with run
 
 Many scripts have sample data so you can run the template script to learn about the software output files.
 
-The template scripts were provided by HPRC and HPRC users.
+The template scripts were provided by HPRC staff and users.
 
 Run the command to start browsing the menu
 
@@ -20,4 +20,4 @@ Be sure to do the following:
     * on the cluster with module spider
     * on the web at the software's website
     * In some cases, changing the software module in the template to a newer software version will work but not always.
-* Change the BSUB parameters and input files based on your data requirements
+* Change the SBATCH parameters and input files based on your data requirements
