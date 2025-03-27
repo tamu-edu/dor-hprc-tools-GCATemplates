@@ -52,6 +52,7 @@ export AF3_IMAGE=/sw/hprc/sw/bio/containers/alphafold/alphafold3.sif
 export AF3_OUTPUT_DIR=$PWD/output_$SLURM_JOB_ID
 
 ################################### COMMANDS ###################################
+jobstats &
 mkdir -p $AF3_OUTPUT_DIR
 singularity exec \
      --nv \
@@ -66,6 +67,7 @@ singularity exec \
      --db_dir=/root/public_databases \
      --output_dir=/root/af_output
 
+jobstats
 ################################################################################
 <<CITATIONS
     - Acknowledge TAMU HPRC: https://hprc.tamu.edu/research/citations.html
