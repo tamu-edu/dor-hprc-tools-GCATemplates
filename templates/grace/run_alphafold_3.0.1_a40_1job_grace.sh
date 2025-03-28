@@ -5,7 +5,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
 #SBATCH --partition=gpu
-#SBATCH --gres=gpu:a100:1
+#SBATCH --gres=gpu:a40:1
+#SBATCH --partition=gpu-a40
 #SBATCH --mem=160G
 #SBATCH --output=stdout.%x.%j
 #SBATCH --error=stderr.%x.%j
@@ -15,24 +16,24 @@ module purge
 <<SETUP
     You will need to prepare the working directory using the following steps:
 
-    1. mkdir code
-    2. cd code
+    1. mkdir code_3.0.1
+    2. cd code_3.0.1
     3. git clone https://github.com/google-deepmind/alphafold3.git
     4. cd alphafold3
-    5. git checkout 4f52a3b
+    5. git checkout v3.0.1
     6. cd ../..
-    7. mkdir input output weights
-    8. move your af3.bin file into the weights directory
+    7. mkdir input output models
+    8. move your af3.bin file into the models directory
     9. configure your sequence in the file: input/alphafold_input.json
    10. Your starting directory structure will look like the following:
        .
-       ├── code
+       ├── code_3.0.1
        │   └── alphafold3
        ├── inputs
        │   └── alphafold_input.json
        ├── outputs
-       ├── run_alphafold_3.0.0_a100_1job_grace.sh
-       └── weights
+       ├── run_alphafold_3.0.1_a40_1job_grace.sh
+       └── models
            └── af3.bin
 SETUP
 
@@ -43,16 +44,17 @@ export AF3_INPUT_DIR=/sw/hprc/sw/bio/containers/alphafold/examples
 export AF3_INPUT_FILE=alphafold_input.json
 
 ######## PARAMETERS ########
-export AF3_CODE_DIR=$PWD/code
-export AF3_MODEL_PARAMETERS_DIR=$PWD/weights
+num_recycles=3
+max_template_date='2025-01-01'
+export AF3_CODE_DIR=$PWD/code_3.0.1
+export AF3_MODEL_PARAMETERS_DIR=$PWD/models
 export AF3_DATABASES_DIR=/scratch/data/bio/alphafold3/2025.03.13/
-export AF3_IMAGE=/sw/hprc/sw/bio/containers/alphafold/alphafold3.sif
+export AF3_IMAGE=/sw/hprc/sw/bio/containers/alphafold/alphafold_3.0.1_unlhcc.sif
 
 ########## OUTPUTS #########
 export AF3_OUTPUT_DIR=$PWD/output_$SLURM_JOB_ID
 
 ################################### COMMANDS ###################################
-jobstats &
 mkdir -p $AF3_OUTPUT_DIR
 singularity exec \
      --nv \
@@ -65,9 +67,10 @@ singularity exec \
      --json_path=/root/af_input/$AF3_INPUT_FILE \
      --model_dir=/root/models \
      --db_dir=/root/public_databases \
+     --max_template_date=$max_template_date \
+     --num_recycles=$num_recycles \
      --output_dir=/root/af_output
 
-jobstats
 ################################################################################
 <<CITATIONS
     - Acknowledge TAMU HPRC: https://hprc.tamu.edu/research/citations.html
