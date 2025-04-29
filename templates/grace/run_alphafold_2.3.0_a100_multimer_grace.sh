@@ -26,7 +26,7 @@ README
 protein_fasta='/scratch/data/bio/alphafold/2.2.0/example_data/T1083_T1084_multimer.fasta'
 
 ######## PARAMETERS ########
-DOWNLOAD_DIR='/scratch/data/bio/alphafold/2.3.0'
+DOWNLOAD_DIR='/scratch/data/bio/alphafold/2.3.2'
 max_template_date='2021-1-1'
 model_preset='multimer'             # monomer, monomer_casp14, monomer_ptm, multimer
 db_preset='full_dbs'                # full_dbs, reduced_dbs
