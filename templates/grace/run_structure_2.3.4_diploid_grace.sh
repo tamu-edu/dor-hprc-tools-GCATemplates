@@ -8,7 +8,8 @@
 #SBATCH --output=stdout.%x.%j       # save stdout to file
 #SBATCH --error=stderr.%x.%j        # save stderr to file
 
-module load GCC/8.3.0 Structure/2.3.4
+module purge
+module load GCC/13.2.0 Structure/2.3.4
 
 <<README
     - Structure manual:
