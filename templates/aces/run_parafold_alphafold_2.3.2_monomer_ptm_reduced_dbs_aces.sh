@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=pf-cpu           # job name
-#SBATCH --time=1-00:00:00           # max job run time dd-hh:mm:ss
+#SBATCH --time=3-00:00:00           # max job run time dd-hh:mm:ss
 #SBATCH --ntasks-per-node=1         # tasks (commands) per compute node
 #SBATCH --cpus-per-task=8           # CPUs (threads) per command
 #SBATCH --mem=32G                   # total memory per node

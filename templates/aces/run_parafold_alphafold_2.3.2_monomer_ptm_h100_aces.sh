@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=parafold-cpu     # job name
-#SBATCH --time=7-00:00:00           # max job run time dd-hh:mm:ss
+#SBATCH --time=3-00:00:00           # max job run time dd-hh:mm:ss
 #SBATCH --ntasks-per-node=1         # tasks (commands) per compute node
 #SBATCH --cpus-per-task=48          # CPUs (threads) per command
 #SBATCH --mem=488G                  # total memory per node
@@ -43,16 +43,16 @@ pickle_out_dir=${pf_output_dir}/${protein_basename}
 jobstats &
 
 # First, run CPU-only steps to get multiple sequence alignments:
-run_alphafold.sh -d $ALPHAFOLD_DATA_DIR -o $pf_output_dir -p $model_preset -i $protein_fasta -t $max_template_date -f
-
 # Second, run GPU steps as a separate job after the first part completes successfully:
+
+run_alphafold.sh -d $ALPHAFOLD_DATA_DIR -o $pf_output_dir -p $model_preset -i $protein_fasta -t $max_template_date -c $db_preset -f && \
 sbatch --job-name=parafold-gpu --time=2-00:00:00 --ntasks-per-node=1 --cpus-per-task=24 --mem=122G --gres=gpu:h100:1 --partition=gpu --output=stdout.%x.%j --error=stderr.%x.%j --dependency=afterok:$SLURM_JOBID<<EOF
 #!/bin/bash
 module purge
 module load GCC/11.3.0  OpenMPI/4.1.4 AlphaFold/2.3.2-CUDA-11.8.0
 module load ParaFold/2.0-CUDA-11.8.0 AlphaPickle/1.4.1
 jobstats -i 1 &
-run_alphafold.sh -g -u 0 -d $ALPHAFOLD_DATA_DIR -o $pf_output_dir -p $model_preset -i $protein_fasta -t $max_template_date
+run_alphafold.sh -g -u 0 -d $ALPHAFOLD_DATA_DIR -o $pf_output_dir -p $model_preset -i $protein_fasta -t $max_template_date -c $db_preset
 # graph pLDDT and PAE .pkl files
 run_AlphaPickle.py -od $pickle_out_dir
 jobstats

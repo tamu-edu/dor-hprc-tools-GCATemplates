@@ -3,7 +3,7 @@
 #SBATCH --time=00:30:00             # max job run time dd-hh:mm:ss
 #SBATCH --ntasks-per-node=1         # tasks (commands) per compute node
 #SBATCH --cpus-per-task=2           # CPUs (threads) per command  
-#SBATCH --mem=10G                   # total memory per node
+#SBATCH --mem=8G                    # total memory per node
 #SBATCH --output=stdout.%x.%j       # save stdout to file
 #SBATCH --error=stderr.%x.%j        # save stderr to file
 
